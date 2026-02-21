@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fire Effect Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, sans-serif;
+    }
+    h1 {
+      color: rgba(255, 180, 80, 0.9);
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .hint {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    #fire-container {
+      position: relative;
+      width: 640px;
+      height: 480px;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fire Effect Demo</h1>
+  <p class="hint">Move mouse or touch to create fire • Orange (right) / Blue (left) based on side of screen</p>
+  <div id="fire-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script>
+    const particles = [];
+    const MAX_PARTICLES = 1200;
+
+    class FireParticle {
+      constructor(x, y, colorType, isDrawing = true) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 1.5;
+        this.vy = -(1 + Math.random() * 2);
+        this.life = 1;
+        this.decay = isDrawing ? 0.012 : 0.04;
+        this.size = isDrawing ? 4 + Math.random() * 6 : 2 + Math.random() * 3;
+        this.initialSize = this.size;
+        this.colorType = colorType;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vx *= 0.98;
+        this.vy *= 0.98;
+        this.life -= this.decay;
+        this.size = this.initialSize * this.life;
+      }
+      draw(p5) {
+        if (this.life <= 0) return;
+        const alpha = Math.min(1, this.life * 1.2);
+        if (this.colorType === 'right') {
+          p5.fill(255, 200, 80, alpha * 220);
+        } else {
+          p5.fill(80, 200, 255, alpha * 220);
+        }
+        p5.noStroke();
+        p5.ellipse(this.x, this.y, Math.max(1, this.size), Math.max(1, this.size));
+      }
+    }
+
+    const sketch = (p5) => {
+      p5.setup = () => {
+        p5.createCanvas(640, 480);
+        p5.pixelDensity(1);
+      };
+
+      p5.draw = () => {
+        p5.blendMode(p5.BLEND);
+        p5.background(0);
+
+        if (p5.mouseIsPressed && p5.mouseX >= 0 && p5.mouseX <= p5.width && p5.mouseY >= 0 && p5.mouseY <= p5.height) {
+          const x = p5.mouseX;
+          const y = p5.mouseY;
+          const colorType = x < p5.width / 2 ? 'left' : 'right';
+          for (let i = 0; i < 8; i++) {
+            particles.push(new FireParticle(x, y, colorType, true));
+          }
+        }
+
+        p5.blendMode(p5.ADD);
+        for (let i = particles.length - 1; i >= 0; i--) {
+          particles[i].update();
+          if (particles[i].life <= 0) {
+            particles.splice(i, 1);
+          } else {
+            particles[i].draw(p5);
+          }
+        }
+        if (particles.length > MAX_PARTICLES) particles.splice(0, particles.length - MAX_PARTICLES);
+      };
+
+      p5.mouseDragged = () => {
+        p5.preventDefault();
+      };
+
+      p5.touchMoved = () => {
+        if (p5.touches.length > 0) {
+          const t = p5.touches[0];
+          const colorType = t.x < p5.width / 2 ? 'left' : 'right';
+          for (let i = 0; i < 6; i++) particles.push(new FireParticle(t.x, t.y, colorType, true));
+        }
+        return false;
+      };
+
+      p5.touchStarted = () => {
+        if (p5.touches.length > 0) {
+          const t = p5.touches[0];
+          const colorType = t.x < p5.width / 2 ? 'left' : 'right';
+          for (let i = 0; i < 4; i++) particles.push(new FireParticle(t.x, t.y, colorType, true));
+        }
+      };
+    };
+
+    new p5(sketch, 'fire-container');
+  </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hand Fire Draw - Alternate</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <p class="hint">
+    <a href="index.html" style="color: rgba(255, 180, 80, 0.9);">← Cinematic Fire Engine</a> &nbsp;|&nbsp;
+    Show your hand • OK sign = draw • Open palm = fire at palm
+  </p>
+  <div id="canvas-container">
+    <video id="video" playsinline autoplay muted width="640" height="480"></video>
+  </div>
+  <div class="ui">
+    <button id="clearBtn">Clear Canvas</button>
+    <label class="toggle">
+      <input type="checkbox" id="webcamToggle" checked>
+      <span>Show Webcam</span>
+    </label>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
